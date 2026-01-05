@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: r2ce
+      POSTGRES_PASSWORD: r2ce_password
+      POSTGRES_DB: r2ce
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - r2ce-network
+    # No ports exposed - internal network only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U r2ce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://r2ce:r2ce_password@db:5432/r2ce
+      LLM_PROVIDER: ${LLM_PROVIDER:-deepseek}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_API_BASE: ${DEEPSEEK_API_BASE:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+    ports:
+      - "8001:8000"  # Expose backend API to host on port 8001
+    networks:
+      - r2ce-network
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/cache:/app/backend/cache
+      - ./backend/logs:/app/backend/logs
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      # Vite dev server proxies /api to backend service
+      VITE_API_PROXY_TARGET: http://backend:8000
+    ports:
+      - "3000:3000"  # Only frontend exposed to host
+    networks:
+      - r2ce-network
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+
+networks:
+  r2ce-network:
+    driver: bridge
+

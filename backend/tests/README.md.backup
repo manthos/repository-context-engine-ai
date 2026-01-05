@@ -1,0 +1,39 @@
+# Testing Guide
+
+## Running Tests
+
+### Unit Tests
+```bash
+pytest backend/tests/unit/
+```
+
+### Integration Tests
+```bash
+pytest backend/tests/integration/
+```
+
+### All Tests
+```bash
+pytest backend/tests/
+```
+
+### With Coverage
+```bash
+pytest backend/tests/ --cov=backend --cov-report=html
+```
+
+## Test Structure
+
+- `unit/` - Unit tests for individual components
+  - `test_git_service.py` - Git service tests
+  - `test_llm_service.py` - LLM service tests
+  - `test_embedding_service.py` - Embedding service tests
+
+- `integration/` - Integration tests for full workflows
+  - `test_api_endpoints.py` - API endpoint tests
+  - `test_database.py` - Database operation tests
+
+## Test Database
+
+Tests use an in-memory SQLite database for speed and isolation. Each test gets a fresh database session.
+

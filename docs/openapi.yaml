@@ -1,0 +1,189 @@
+openapi: 3.1.0
+info:
+  title: "R2CE API"
+  description: "API for Recursive Repository Context Engine"
+  version: "1.0.0"
+
+paths:
+  /analyze:
+    post:
+      summary: "Start recursive analysis of a Git repository"
+      operationId: "analyzeRepo"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repo_url]
+              properties:
+                repo_url:
+                  type: string
+                  format: uri
+                  example: "https://github.com/DataTalksClub/ai-dev-tools-zoomcamp"
+                depth:
+                  type: integer
+                  default: 3
+      responses:
+        '202':
+          description: "Analysis started"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: { type: string }
+
+  /status/{task_id}:
+    get:
+      summary: "Get analysis progress"
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: "Status object"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStatus'
+
+  /tree/{repo_id}:
+    get:
+      summary: "Get the recursive summary tree"
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: "Full repository tree with summaries"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoNode'
+
+  /search:
+    get:
+      summary: "Hybrid search across code summaries"
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: repo_id
+          in: query
+          required: false
+          schema: { type: string }
+          description: "Repository ID to filter results (optional)"
+      responses:
+        '200':
+          description: "Search results"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+
+  /qa:
+    post:
+      summary: "Answer questions about a repository"
+      operationId: "askQuestion"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repo_id, question]
+              properties:
+                repo_id:
+                  type: string
+                question:
+                  type: string
+      responses:
+        '200':
+          description: "Answer with sources"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAResponse'
+
+  /browse/{repo_id}:
+    get:
+      summary: "Browse repository cache summaries"
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: path
+          in: query
+          required: false
+          schema: { type: string, default: "" }
+          description: "Path within repository (empty for root)"
+      responses:
+        '200':
+          description: "File/folder structure and summary content"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrowseResponse'
+
+components:
+  schemas:
+    RepoNode:
+      type: object
+      properties:
+        name: { type: string }
+        type: { type: string, enum: [file, folder] }
+        path: { type: string }
+        summary: { type: string }
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/RepoNode'
+
+    TaskStatus:
+      type: object
+      properties:
+        status: { type: string, enum: [pending, processing, completed, failed] }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        result_id: { type: string, nullable: true }
+
+    SearchResult:
+      type: object
+      properties:
+        path: { type: string }
+        score: { type: number }
+        summary_snippet: { type: string }
+
+    QAResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        sources:
+          type: array
+          items: { type: string }
+
+    BrowseResponse:
+      type: object
+      properties:
+        type: { type: string, enum: [file, folder] }
+        path: { type: string }
+        name: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              type: { type: string, enum: [file, folder] }
+              path: { type: string }
+              has_summary: { type: boolean }
+        content: { type: string }
+        summary: { type: string }

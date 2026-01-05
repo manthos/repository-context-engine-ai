@@ -1,0 +1,113 @@
+.SearchBar {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.SearchBar-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.SearchBar-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.SearchBar-button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.SearchBar-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.SearchBar-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.SearchBar-results {
+  margin-top: 20px;
+}
+
+.SearchBar-result {
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #28a745;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.SearchBar-result:hover {
+  background-color: #e7f3ff;
+  border-left-color: #007bff;
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.SearchBar-result::after {
+  content: '👆 Click to view';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 11px;
+  color: #6c757d;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.SearchBar-result:hover::after {
+  opacity: 1;
+}
+
+.SearchBar-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.SearchBar-result-path {
+  font-weight: 500;
+  color: #007bff;
+}
+
+.SearchBar-result-score {
+  font-size: 12px;
+  color: #666;
+}
+
+.SearchBar-result-snippet {
+  color: #555;
+  font-size: 14px;
+}
+
+.SearchBar-error {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+}
+
+.SearchBar-results h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
