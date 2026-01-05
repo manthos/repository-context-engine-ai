@@ -55,7 +55,11 @@ describe('QAInterface', () => {
       data: {
         answer: 'This is a test repository for demonstration purposes.',
         sources: ['README.md', 'docs/overview.md']
-      }
+      },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.askQuestion).mockResolvedValue(mockResponse)
@@ -84,7 +88,11 @@ describe('QAInterface', () => {
       data: {
         answer: 'This is a test repository.',
         sources: ['README.md']
-      }
+      },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.askQuestion).mockResolvedValue(mockResponse)

@@ -22,6 +22,7 @@ interface BrowseResponse {
   items?: BrowseItem[]
   content?: string
   summary?: string
+  summary_exists?: boolean
 }
 
 const BrowseView: React.FC<BrowseViewProps> = ({ repoId, initialPath }) => {

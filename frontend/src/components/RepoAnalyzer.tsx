@@ -9,7 +9,7 @@ interface RepoAnalyzerProps {
 const RepoAnalyzer: React.FC<RepoAnalyzerProps> = ({ onAnalysisComplete }) => {
   const [repoUrl, setRepoUrl] = useState('')
   const [passphrase, setPassphrase] = useState('')
-  const [taskId, setTaskId] = useState<string | null>(null)
+  const [, setTaskId] = useState<string | null>(null)
   const [status, setStatus] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)

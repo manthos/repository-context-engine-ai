@@ -49,7 +49,7 @@ describe('SearchBar', () => {
   it('shows error when searching without a query', async () => {
     render(<SearchBar repoId="test-repo-123" />)
     
-    const input = screen.getByPlaceholderText(/Search repository summaries/)
+    screen.getByPlaceholderText(/Search repository summaries/)
     const button = screen.getByText('Search')
     
     // Button is disabled when query is empty, so we can't actually click it
@@ -73,7 +73,11 @@ describe('SearchBar', () => {
       data: [
         { path: 'src/main.py', score: 0.95, summary_snippet: 'Main application entry point' },
         { path: 'README.md', score: 0.85, summary_snippet: 'Project documentation' }
-      ]
+      ],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.search).mockResolvedValue(mockResponse)
@@ -96,7 +100,11 @@ describe('SearchBar', () => {
       data: [
         { path: 'src/auth.py', score: 0.95, summary_snippet: 'Authentication logic' },
         { path: 'docs/auth.md', score: 0.85, summary_snippet: 'Auth documentation' }
-      ]
+      ],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.search).mockResolvedValue(mockResponse)
@@ -118,7 +126,11 @@ describe('SearchBar', () => {
 
   it('shows message when no results are found', async () => {
     const mockResponse = {
-      data: []
+      data: [],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.search).mockResolvedValue(mockResponse)
@@ -165,7 +177,11 @@ describe('SearchBar', () => {
     const mockResponse = {
       data: [
         { path: 'src/main.py', score: 0.95, summary_snippet: 'Main file' }
-      ]
+      ],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.search).mockResolvedValue(mockResponse)
@@ -192,7 +208,11 @@ describe('SearchBar', () => {
     const mockResponse = {
       data: [
         { path: 'test.py', score: 0.9, summary_snippet: 'Test file' }
-      ]
+      ],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any
     }
     
     vi.mocked(apiClient.search).mockResolvedValue(mockResponse)

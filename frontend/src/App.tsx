@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import RepoAnalyzer from './components/RepoAnalyzer'
 import SearchBar from './components/SearchBar'
 import QAInterface from './components/QAInterface'
