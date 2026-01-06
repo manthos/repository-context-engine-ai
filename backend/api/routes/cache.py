@@ -57,3 +57,32 @@ async def list_cached_repositories(db: Session = Depends(get_db)):
     
     return {"repositories": cached_repos}
 
+
+@router.get("/cache/stats")
+async def get_database_stats(db: Session = Depends(get_db)):
+    """
+    Get database statistics - useful for debugging.
+    Shows all repositories regardless of cache status.
+    """
+    from backend.models.node import Node
+    from backend.models.task import Task
+    
+    repo_count = db.query(Repository).count()
+    node_count = db.query(Node).count()
+    task_count = db.query(Task).count()
+    
+    repos = db.query(Repository).all()
+    repo_list = [{
+        "id": r.id,
+        "url": r.url,
+        "status": r.status if hasattr(r.status, 'value') else str(r.status),
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+        "updated_at": r.updated_at.isoformat() if r.updated_at else None,
+    } for r in repos]
+    
+    return {
+        "total_repositories": repo_count,
+        "total_nodes": node_count,
+        "total_tasks": task_count,
+        "repositories": repo_list
+    }
