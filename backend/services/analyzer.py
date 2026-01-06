@@ -150,16 +150,10 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                         )
                         logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
                         print(f"[ANALYZER] LLM returned summary, length: {len(summary)}")  # Backup logging
-                            # Save summary to file
-                            write_summary(repo_path, item["path"], "file", summary, repo_name)
-                            logger.info(f"Saved summary to filesystem for {item['path']}")
                         
-                        # Create embedding
-                        embedding = create_embedding(summary)
-                        
-                        # Check if node already exists in DB
-                        existing_node = db.query(Node).filter(
-                            Node.repo_id == repo_id,
+                        # Save summary to file
+                        write_summary(repo_path, item["path"], "file", summary, repo_name)
+                        logger.info(f"Saved summary to filesystem for {item['path']}")
                             Node.path == item["path"]
                         ).first()
                         
