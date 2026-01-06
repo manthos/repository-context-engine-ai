@@ -144,16 +144,23 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                                 asyncio.set_event_loop(loop)
                             
                             logger.info(f"Calling LLM service for {item['path']}")
-                        print(f"[ANALYZER] Calling LLM for: {item['path']}")  # Backup logging
-                        summary = loop.run_until_complete(
-                            llm_service.generate_summary(content, item_type="file")
-                        )
-                        logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
-                        print(f"[ANALYZER] LLM returned summary, length: {len(summary)}")  # Backup logging
+                            print(f"[ANALYZER] Calling LLM for: {item['path']}")  # Backup logging
+                            summary = loop.run_until_complete(
+                                llm_service.generate_summary(content, item_type="file")
+                            )
+                            logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
+                            print(f"[ANALYZER] LLM returned summary, length: {len(summary)}")  # Backup logging
+                            
+                            # Save summary to file
+                            write_summary(repo_path, item["path"], "file", summary, repo_name)
+                            logger.info(f"Saved summary to filesystem for {item['path']}")
                         
-                        # Save summary to file
-                        write_summary(repo_path, item["path"], "file", summary, repo_name)
-                        logger.info(f"Saved summary to filesystem for {item['path']}")
+                        # Create embedding
+                        embedding = create_embedding(summary)
+                        
+                        # Check if node already exists in DB
+                        existing_node = db.query(Node).filter(
+                            Node.repo_id == repo_id,
                             Node.path == item["path"]
                         ).first()
                         
