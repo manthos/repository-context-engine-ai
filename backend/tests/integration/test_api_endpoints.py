@@ -1,5 +1,6 @@
 """Integration tests for API endpoints."""
 import pytest
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.tests.conftest import db_session
@@ -9,6 +10,21 @@ from backend.tests.conftest import db_session
 def client(db_session):
     """Create test client."""
     return TestClient(app)
+
+
+@pytest.fixture
+def mock_passphrase():
+    """Mock passphrase validation to always allow access in tests."""
+    with patch("backend.services.passphrase_service.can_crawl_repository") as mock_can_crawl:
+        mock_can_crawl.return_value = (True, None)
+        yield mock_can_crawl
+
+
+@pytest.fixture
+def mock_analysis():
+    """Mock the actual analysis process to avoid LLM calls."""
+    with patch("backend.services.analyzer.start_analysis") as mock_start:
+        yield mock_start
 
 
 def test_root_endpoint(client):
@@ -25,14 +41,21 @@ def test_health_endpoint(client):
     assert response.json()["status"] == "healthy"
 
 
-def test_analyze_endpoint(client):
+def test_analyze_endpoint(client, mock_passphrase, mock_analysis):
     """Test analyze endpoint."""
     response = client.post(
         "/api/analyze",
-        json={"repo_url": "https://github.com/octocat/Hello-World"}
+        json={
+            "repo_url": "https://github.com/octocat/Hello-World",
+            "passphrase": "test"
+        }
     )
     assert response.status_code == 202
     assert "task_id" in response.json()
+    # Verify passphrase was checked
+    mock_passphrase.assert_called_once()
+    # Verify analysis was started
+    mock_analysis.assert_called_once()
 
 
 def test_status_endpoint(client, db_session):
@@ -57,17 +80,20 @@ def test_status_endpoint(client, db_session):
     assert "progress" in response.json()
 
 
-def test_search_endpoint(client, db_session):
-    """Test search endpoint."""
-    response = client.get("/api/search?q=test")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-
-def test_analyze_workflow_complete(client, db_session):
+def test_search_endpoint(client, db_session):, mock_passphrase, mock_analysis):
     """
     Integration test for complete analyze workflow:
     1. POST /api/analyze - Start analysis
+    2. GET /api/status/{task_id} - Check progress
+    3. GET /api/tree/{repo_id} - Retrieve results (when complete)
+    """
+    # Step 1: Start analysis
+    analyze_response = client.post(
+        "/api/analyze",
+        json={
+            "repo_url": "https://github.com/octocat/Hello-World",
+            "passphrase": "test"
+        
     2. GET /api/status/{task_id} - Check progress
     3. GET /api/tree/{repo_id} - Retrieve results (when complete)
     """
@@ -203,20 +229,17 @@ def test_cache_list_endpoint(client, db_session):
 def test_error_handling_invalid_task_id(client):
     """Test error handling for invalid task ID."""
     response = client.get("/api/status/nonexistent-task-id")
-    assert response.status_code in [404, 500]  # Should return error
-
-
-def test_error_handling_invalid_repo_url(client):
+    assert response.status_code in [404, 500]  , mock_passphrase, mock_analysis):
     """Test error handling for invalid repository URL."""
     response = client.post(
         "/api/analyze",
-        json={"repo_url": "not-a-valid-url"}
-    )
-    # Should either validate URL or accept it and fail during processing
-    assert response.status_code in [202, 400, 422]
-
-
-def test_qa_endpoint_workflow(client, db_session):
+        json={
+            "repo_url": "not-a-valid-url",
+            "passphrase": "test"
+        sitory URL."""
+    response = client.post(
+        "/api/analyze",
+        json={"repo_url": "not-a-valid-url"}, mock_passphrase):
     """
     Test Q&A workflow:
     1. Repository must exist and be completed
@@ -243,11 +266,21 @@ def test_qa_endpoint_workflow(client, db_session):
     db_session.add(node)
     db_session.commit()
     
-    # Ask question
-    response = client.post(
-        "/api/qa",
-        json={
-            "repo_id": repo_id,
+    # Mock the LLM call to avoid real API calls
+    with patch("backend.services.qa_service.get_qa_answer") as mock_qa:
+        mock_qa.return_value = "This is a test project for demonstrating R2CE"
+        
+        # Ask question
+        response = client.post(
+            "/api/qa",
+            json={
+                "repo_id": repo_id,
+                "question": "What is this project about?",
+                "passphrase": "test"
+            }
+        )
+        # May fail if LLM not configured, but endpoint should exist
+                "repo_id": repo_id,
             "question": "What is this project about?",
             "passphrase": "test"
         }
