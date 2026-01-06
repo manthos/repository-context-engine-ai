@@ -2,6 +2,7 @@
 
 **Course**: AI Dev Tools  
 **Project**: R2CE - Repository Context Engine  
+**Demo**: 🎥 [View Screenshots & Video Demo](SCREEN_DEMO.md)  
 
 ---
 
@@ -185,6 +186,7 @@ this is not an R2CE issue but how free tier Render works
   - Fully functional UI
   - Connected to production backend
 - **Database**: PostgreSQL managed service on Render (persistent, separate from web services)
+- **Visual Demo**: [Screenshots & Video Walkthrough](SCREEN_DEMO.md) showing complete workflow
 - Deployment documentation: [DEPLOYMENT.md](DEPLOYMENT.md)
   - Step-by-step Render setup
   - Environment variable configuration

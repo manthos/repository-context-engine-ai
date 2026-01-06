@@ -1,6 +1,7 @@
 # Recursive Repository Context Engine (R2CE)
 
-> **📊 [Evaluators please see reference for each evaluation point](EVALUATION.md)** 
+> **📊 [Evaluators please see reference for each evaluation point](EVALUATION.md)**  
+> **🎥 [View Screenshots & Video Demo](SCREEN_DEMO.md)** 
 
 ## 📍 Overview
 
@@ -18,6 +19,8 @@ and ask questions or talk with the repository.
 
 Both the RAG and the summaries can be used to create an AI Dev Tool that
  already understands the input repository and knows how to extend it.
+
+> 🎬 **See it in action**: [Screenshots & Video Demo](SCREEN_DEMO.md)
 
 ## 🤖 Problem Description
 
