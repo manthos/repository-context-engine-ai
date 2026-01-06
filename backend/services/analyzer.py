@@ -1,6 +1,7 @@
 """Recursive analyzer for repository summarization."""
 import os
 import uuid
+import logging
 from pathlib import Path
 from sqlalchemy.orm import Session
 from backend.models.repository import Repository, RepositoryStatus
@@ -17,6 +18,9 @@ from backend.services.summary_files import (
 )
 from backend.services.passphrase_service import record_repository_crawl
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 
 def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphrase: str = None):
     """
@@ -28,6 +32,8 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
     repo = None
     repo_id = None
     try:
+        logger.info(f"Starting analysis for task {task_id}, repo: {repo_url}")
+        
         # Create or get repository
         repo = db.query(Repository).filter(Repository.url == repo_url).first()
         if not repo:
@@ -55,7 +61,9 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
         # Clone repository
         task.status_message = "Cloning repository..."
         db.commit()
+        logger.info(f"Cloning repository from {repo_url}")
         repo_path = clone_repository(repo_url)
+        logger.info(f"Repository cloned to {repo_path}")
         
         # Get repository name for root summary naming
         cache_path = get_repo_cache_path(repo_url)
@@ -64,6 +72,7 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
         # Get file tree
         file_tree = get_file_tree(repo_path)
         total_files = len([f for f in file_tree if f["type"] == "file"])
+        logger.info(f"Found {total_files} files in repository")
         
         # Handle empty repository
         if not file_tree or total_files == 0:
@@ -112,6 +121,7 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                     # Update status message
                     task.status_message = f"Processing file: {item['path']}"
                     db.commit()
+                    logger.info(f"Processing file: {item['path']}, size: {len(content)} chars")
                     
                     # Filesystem cache takes precedence: check if summary file exists
                     # If file doesn't exist, re-summarize even if DB has entry
@@ -119,9 +129,11 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                     
                     if existing_summary:
                         # Use existing summary from filesystem
+                        logger.info(f"Using cached summary for {item['path']}")
                         summary = existing_summary
                     else:
                         # Generate new summary
+                        logger.info(f"Generating new summary for {item['path']}")
                         import asyncio
                         try:
                             loop = asyncio.get_event_loop()
@@ -129,12 +141,15 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                             loop = asyncio.new_event_loop()
                             asyncio.set_event_loop(loop)
                         
+                        logger.info(f"Calling LLM service for {item['path']}")
                         summary = loop.run_until_complete(
                             llm_service.generate_summary(content, item_type="file")
                         )
+                        logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
                         
                         # Save summary to file
                         write_summary(repo_path, item["path"], "file", summary, repo_name)
+                        logger.info(f"Saved summary to filesystem for {item['path']}")
                     
                     # Create embedding
                     embedding = create_embedding(summary)
