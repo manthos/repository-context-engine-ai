@@ -12,6 +12,8 @@ def create_embedding(text: str) -> List[float] | None:
     
     Note: This is a placeholder. In production, use a proper embedding model
     like OpenAI's text-embedding-ada-002 or sentence-transformers.
+    
+    Returns a list of floats (not a string) for proper JSON storage.
     """
     # For MVP, return None if pgvector not available
     # In production, implement proper embedding generation
@@ -23,8 +25,9 @@ def create_embedding(text: str) -> List[float] | None:
     import hashlib
     hash_obj = hashlib.md5(text.encode())
     hash_hex = hash_obj.hexdigest()
-    # Convert to 128-dim vector (simple hash-based)
-    embedding = [float(int(c, 16)) / 15.0 for c in hash_hex[:128]]
+    # Convert to 32-dim vector (simple hash-based) - keep smaller for JSON storage
+    embedding = [float(int(c, 16)) / 15.0 for c in hash_hex[:32]]
+    # Ensure it's a proper list, not a string
     return embedding
 
 
