@@ -21,7 +21,7 @@ The README goes beyond basic description to explain WHY the system exists (AI ag
 
 ---
 
-### 2. AI System Development (Tools, Workflow, MCP) - 2/2 points ✅
+### 2. AI System Development (Tools, Workflow, MCP) ✅
 
 **Criterion**: The project clearly documents AI-assisted system development and describes how MCP was used.
 
@@ -36,7 +36,7 @@ Thorough documentation of AI-first development process. The project not only use
 
 ---
 
-### 3. Technologies and System Architecture - 2/2 points ✅
+### 3. Technologies and System Architecture ✅
 
 **Criterion**: The project clearly describes technologies used and explains how they fit into system architecture.
 
@@ -51,7 +51,7 @@ README provides clear technology stack with rationale. The multi-tier structure 
 
 ---
 
-### 4. Front-End Implementation - 3/3 points ✅
+### 4. Front-End Implementation ✅
 
 **Criterion**: Front-end is functional, well-structured, and includes tests covering core logic.
 
@@ -68,7 +68,7 @@ Frontend demonstrates professional structure with TypeScript, centralized API cl
 
 ---
 
-### 5. API Contract (OpenAPI Specifications) - 2/2 points ✅
+### 5. API Contract (OpenAPI Specifications) ✅
 
 **Criterion**: OpenAPI specification fully reflects front-end requirements and is used as the contract for backend development.
 
@@ -86,7 +86,7 @@ OpenAPI spec serves as the authoritative contract between frontend and backend. 
 
 ---
 
-### 6. Back-End Implementation - 3/3 points ✅
+### 6. Back-End Implementation ✅
 
 **Criterion**: Back-end is well-structured, follows OpenAPI specifications, and includes tests covering core functionality.
 
@@ -107,7 +107,7 @@ Backend demonstrates production-quality architecture with clear separation of co
 
 ---
 
-### 7. Database Integration - 2/2 points ✅
+### 7. Database Integration ✅
 
 **Criterion**: Database layer is properly integrated, supports different environments, and is documented.
 
@@ -125,7 +125,7 @@ Database layer demonstrates professional practices with migration management, en
 
 ---
 
-### 8. Containerization - 2/2 points ✅
+### 8. Containerization ✅
 
 **Criterion**: The entire system runs via Docker or docker-compose with clear instructions.
 
@@ -144,7 +144,7 @@ Docker setup is production-ready with multi-stage builds, proper networking, and
 
 ---
 
-### 9. Integration Testing - 2/2 points ✅
+### 9. Integration Testing ✅
 
 **Criterion**: Integration tests are clearly separated, cover key workflows (including database interactions), and are documented.
 
@@ -164,7 +164,7 @@ Integration tests go beyond unit tests by testing complete workflows including d
 
 ---
 
-### 10. Deployment - 2/2 points ✅
+### 10. Deployment ✅
 
 **Criterion**: Application is deployed to the cloud with a working URL or clear proof of deployment.
 
@@ -189,7 +189,7 @@ Full production deployment on Render with persistent database. Both frontend and
 
 ---
 
-### 11. CI/CD Pipeline - 2/2 points ✅
+### 11. CI/CD Pipeline ✅
 
 **Criterion**: CI/CD pipeline runs tests and deploys the application when tests pass.
 
@@ -209,7 +209,7 @@ Complete CI/CD pipeline ensures code quality and automated deployment. Tests gat
 
 ---
 
-### 12. Reproducibility - 2/2 points ✅
+### 12. Reproducibility ✅
 
 **Criterion**: Clear instructions exist to set up, run, test, and deploy the system end-to-end.
 
