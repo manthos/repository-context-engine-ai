@@ -169,7 +169,7 @@ Integration tests go beyond unit tests by testing complete workflows including d
 
 **Criterion**: Application is deployed to the cloud with a working URL or clear proof of deployment.
 
-Full production deployment on Render with persistent database. Both frontend and backend are publicly accessible. DEPLOYMENT.md provides comprehensive instructions for reproducing the deployment.
+Full production deployment on Render free tier. Both frontend and backend are publicly accessible. DEPLOYMENT.md provides comprehensive instructions for reproducing the deployment. Besides live URL we also include Screenshots and Video (see below "Visual Demo")
 
 > ⚠️ **Important: Render Free Tier Behavior**
 > - **Cold starts**: Services spin down after 15 minutes of inactivity and take ~30 seconds to wake up
