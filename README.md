@@ -1,5 +1,7 @@
 # Recursive Repository Context Engine (R2CE)
 
+> **📊 [Evaluators please see reference for each evaluation point](EVALUATION.md)** 
+
 ## 📍 Overview
 
 The **Recursive Repository Context Engine (R2CE)** is an AI-native
@@ -9,6 +11,13 @@ token limits, R2CE creates a **Bottom-Up Recursive Summary** of any Git
 repository. It transforms raw code into a hierarchical map of Markdown
 and YAML summaries, allowing agents to navigate complex architectures
 with high precision and low token cost.
+
+The user can crawl any public git repository with an LLM, currently 
+DeepSeek Coder, and store development summaries and embeddings (RAG) 
+and ask questions or talk with the repository.
+
+Both the RAG and the summaries can be used to create an AI Dev Tool that
+ already understands the input repository and knows how to extend it.
 
 ## 🤖 Problem Description
 
@@ -320,6 +329,8 @@ To test R2CE with small repositories, you can find repositories under 10KB using
 🔗 [GitHub Search: Repositories under 10KB](https://github.com/search?q=size%3A10&type=repositories&ref=advsearch)
 
 These small repositories are perfect for quick testing and understanding how R2CE processes and summarizes codebases.
+
+We have pre-crawled https://github.com/denissimon/prediction-builder so you can browse and see the results.
 
 ### Local Development (Without Docker)
 
