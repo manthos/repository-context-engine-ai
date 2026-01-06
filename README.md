@@ -44,6 +44,16 @@ R2CE is a web application that:
    - Asking questions about the codebase
    - Viewing hierarchical tree representations
 5. **Exposes MCP tools** for AI agents to interact with analyzed repositories
+
+## Running Demo
+- **Backend**: https://r2ce-backend.onrender.com
+  - API documentation available at `/docs`
+  - Health check at `/health`
+- **Frontend**: https://r2ce-frontend.onrender.com
+  - Fully functional UI
+  - Connected to production backend
+- **Database**: PostgreSQL managed service on Render
+
 ## 🔮 Features
 
 -   **Automatic Git Cloning:** Connect any public or private repository.
@@ -433,61 +443,6 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 5. Test deployed application at your URLs
 
 **See [DEPLOYMENT.md](DEPLOYMENT.md) for complete step-by-step instructions with all commands and configuration details.**
-
-## 👥 Peer Reviewing Criteria
-
-To assist my peers in grading:
-
-1.  **Problem Description:** Clearly outlined in the "Problem" section above.
-2.  **AI Tools:** Documented in `AGENTS.md` and `DEVELOPMENT_LOG.md`.
-3.  **MCP Integration:** 
-    - Filesystem MCP used during development (documented in `DEVELOPMENT_LOG.md`)
-    - R2CE MCP server fully implemented (`mcp/r2ce-server/`) with virtual environment
-    - See `mcp/r2ce-server/README.md` for MCP server documentation
-4.  **OpenAPI:** Found in `docs/openapi.yaml` and integrated with FastAPI docs at `/docs`.
-5.  **Containerization:** Full `docker-compose.yml` provided for end-to-end setup.
-6.  **Testing:** 
-    - ✅ **Backend Tests:** Unit tests (Git, LLM, Embedding services - all mocked) + Integration tests (API endpoints, database operations)
-    - ✅ **Frontend Tests:** Component tests (RepoAnalyzer, QAInterface, SearchBar) + Service tests (API client)
-    - ✅ **Integration Tests Clearly Separated:** 
-      - Separate folders: `unit/` vs `integration/`
-      - Integration tests cover 7 key workflows with database interactions
-      - Full documentation in `backend/tests/README.md`
-      - Tests include: Analysis workflow, Search, Browse, Hierarchical structures, Status transitions, Task tracking, Q&A
-    - ✅ **Test Coverage:** Comprehensive coverage of core functionality with clear test structure
-    - Test guide: `TESTING_GUIDE.md`
-    - Automated test script: `test_small_repo.sh`
-    - Edge cases documented: `EDGE_CASES.md`
-7.  **Technologies & Architecture:** Fully documented in README with detailed tech stack breakdown and system architecture.
-8.  **Frontend:** 
-    - ✅ Well-structured with centralized API client (`frontend/src/services/api.ts`)
-    - ✅ All backend calls go through single API service (no scattered axios calls)
-    - ✅ Comprehensive tests covering components and API service
-    - ✅ Clear component separation and props-based communication
-9.  **Backend:** 
-    - ✅ Well-structured with service layer pattern
-    - ✅ Follows OpenAPI specification exactly (contract-first approach)
-    - ✅ Comprehensive tests with unit and integration coverage
-    - ✅ Clear documentation in code and README
-10. **Database:** 
-    - ✅ **Multi-Environment Support:** SQLite (dev) + PostgreSQL (prod) with automatic switching via `DATABASE_URL`
-    - ✅ **Proper Integration:** SQLAlchemy ORM with models (Repository, Node, Task)
-    - ✅ **Migration Management:** Alembic for version control and schema updates
-    - ✅ **Comprehensive Documentation:** Database section in README with configuration examples, migration commands, and environment switching guide
-    - ✅ **Docker Integration:** PostgreSQL service in docker-compose.yml with health checks
-11. **CI/CD:** 
-    - ✅ **Automated Testing:** GitHub Actions runs all tests on every PR and push to `main`
-    - ✅ **Automated Deployment:** Render auto-deploys when tests pass on `main` branch
-    - ✅ **Complete Setup Guide:** See [CI_CD_SETUP.md](CI_CD_SETUP.md) for configuration instructions
-    - ✅ **Test Coverage:** Both backend (pytest) and frontend (vitest) tests run in CI
-    - ✅ **PostgreSQL in CI:** Tests run against real PostgreSQL database (same as production)
-12. **Reproducibility:** 
-    - ✅ **Complete End-to-End Guide:** [END_TO_END_GUIDE.md](END_TO_END_GUIDE.md) covers setup, running, testing, and deployment in a single walkthrough
-    - ✅ **Detailed Setup Instructions:** Clear prerequisites, environment configuration, and Docker Compose setup
-    - ✅ **Testing Instructions:** Commands for unit tests, integration tests, and coverage reports
-    - ✅ **Deployment Guide:** Step-by-step Render deployment with verification steps
-    - ✅ **CI/CD Guide:** Complete pipeline configuration and testing instructions
-    - ✅ **Troubleshooting:** Common issues and solutions documented
 
 ---
 
