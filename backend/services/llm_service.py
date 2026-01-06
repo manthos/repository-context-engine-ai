@@ -5,6 +5,9 @@ from backend.config import settings
 from backend.services.llm_logger import log_llm_call
 import openai
 import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LLMService(ABC):
@@ -79,8 +82,10 @@ Answer:"""
     
     async def generate_summary(self, content: str, context: Optional[str] = None, item_type: str = "file") -> str:
         """Generate summary using OpenAI."""
+        logger.info(f"OpenAI: Generating {item_type} summary, content length: {len(content)}")
         prompt = self._build_prompt(content, context, item_type)
         
+        logger.info(f"OpenAI: Calling API with model {self.model}")
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
@@ -89,6 +94,7 @@ Answer:"""
         )
         
         result = response.choices[0].message.content.strip()
+        logger.info(f"OpenAI: Received response, length: {len(result)}")
         
         # Log the LLM call
         log_llm_call("openai", self.model, prompt, result, item_type, context)

@@ -1,4 +1,6 @@
 """Main FastAPI application."""
+import logging
+import sys
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,8 +14,20 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import os
 import traceback
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
 # Create database tables
+logger.info("Creating database tables...")
 Base.metadata.create_all(bind=engine)
+logger.info("Database tables created")
 
 # Create FastAPI app
 app = FastAPI(
@@ -21,6 +35,16 @@ app = FastAPI(
     description="API for Recursive Repository Context Engine",
     version="1.0.0",
 )
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("=" * 50)
+    logger.info("R2CE Backend Starting")
+    logger.info(f"Environment: {settings.environment}")
+    logger.info(f"LLM Provider: {settings.llm_provider}")
+    logger.info(f"Database URL: {settings.database_url[:20]}...")
+    logger.info(f"Frontend URL: {settings.frontend_url}")
+    logger.info("=" * 50)
 
 # CORS middleware - MUST be added before exception handlers
 # Allow frontend URL from environment variable, plus localhost for development
