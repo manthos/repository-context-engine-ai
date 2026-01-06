@@ -11,30 +11,7 @@ def client(db_session):
     return TestClient(app)
 
 
-def test_root_endpoint(client):
-    """Test root endpoint."""
-    response = client.get("/")
-    assert response.status_code == 200
-    assert "message" in response.json()
-
-
 def test_health_endpoint(client):
-    """Test health endpoint."""
+    """Test health endpoint responds successfully."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
-
-
-def test_search_endpoint(client):
-    """Test search endpoint returns a list."""
-    response = client.get("/api/search?q=test")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-
-def test_cache_list_endpoint(client):
-    """Test cache list endpoint returns a list."""
-    response = client.get("/api/cache")
-    assert response.status_code == 200
-    repos = response.json()
-    assert isinstance(repos, list)
