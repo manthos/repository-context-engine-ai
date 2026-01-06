@@ -114,79 +114,87 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
         
         for item in file_tree:
             if item["type"] == "file":
-                file_path = os.path.join(repo_path, item["path"])
-                content = read_file_content(file_path)
+                try:
+                    file_path = os.path.join(repo_path, item["path"])
+                    content = read_file_content(file_path)
+                    
+                    if content:
+                        # Update status message
+                        task.status_message = f"Processing file: {item['path']}"
+                        db.commit()
+                        logger.info(f"Processing file: {item['path']}, size: {len(content)} chars")
+                        
+                        # Filesystem cache takes precedence: check if summary file exists
+                        # If file doesn't exist, re-summarize even if DB has entry
+                        existing_summary = read_summary(repo_path, item["path"], "file", repo_name)
+                        
+                        if existing_summary:
+                            # Use existing summary from filesystem
+                            logger.info(f"Using cached summary for {item['path']}")
+                            summary = existing_summary
+                        else:
+                            # Generate new summary
+                            logger.info(f"Generating new summary for {item['path']}")
+                            import asyncio
+                            try:
+                                loop = asyncio.get_event_loop()
+                            except RuntimeError:
+                                loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(loop)
+                            
+                            logger.info(f"Calling LLM service for {item['path']}")
+                            summary = loop.run_until_complete(
+                                llm_service.generate_summary(content, item_type="file")
+                            )
+                            logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
+                            
+                            # Save summary to file
+                            write_summary(repo_path, item["path"], "file", summary, repo_name)
+                            logger.info(f"Saved summary to filesystem for {item['path']}")
+                        
+                        # Create embedding
+                        embedding = create_embedding(summary)
+                        
+                        # Check if node already exists in DB
+                        existing_node = db.query(Node).filter(
+                            Node.repo_id == repo_id,
+                            Node.path == item["path"]
+                        ).first()
+                        
+                        if existing_node:
+                            # Update existing node
+                            existing_node.summary = summary
+                            existing_node.embedding = embedding
+                        else:
+                            # Create new node
+                            node_id = str(uuid.uuid4())
+                            node = Node(
+                                id=node_id,
+                                repo_id=repo_id,
+                                path=item["path"],
+                                name=os.path.basename(item["path"]),
+                                type="file",
+                                summary=summary,
+                                embedding=embedding,
+                            )
+                            db.add(node)
+                        
+                        processed += 1
+                        
+                        # Update progress (avoid division by zero)
+                        if total_files > 0:
+                            progress = int((processed / total_files) * 80)  # Files take 80% of progress
+                        else:
+                            progress = 80
+                        task.progress = progress
+                        db.commit()
+                        logger.info(f"Successfully processed and committed {item['path']}")
                 
-                if content:
-                    # Update status message
-                    task.status_message = f"Processing file: {item['path']}"
-                    db.commit()
-                    logger.info(f"Processing file: {item['path']}, size: {len(content)} chars")
-                    
-                    # Filesystem cache takes precedence: check if summary file exists
-                    # If file doesn't exist, re-summarize even if DB has entry
-                    existing_summary = read_summary(repo_path, item["path"], "file", repo_name)
-                    
-                    if existing_summary:
-                        # Use existing summary from filesystem
-                        logger.info(f"Using cached summary for {item['path']}")
-                        summary = existing_summary
-                    else:
-                        # Generate new summary
-                        logger.info(f"Generating new summary for {item['path']}")
-                        import asyncio
-                        try:
-                            loop = asyncio.get_event_loop()
-                        except RuntimeError:
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                        
-                        logger.info(f"Calling LLM service for {item['path']}")
-                        summary = loop.run_until_complete(
-                            llm_service.generate_summary(content, item_type="file")
-                        )
-                        logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
-                        
-                        # Save summary to file
-                        write_summary(repo_path, item["path"], "file", summary, repo_name)
-                        logger.info(f"Saved summary to filesystem for {item['path']}")
-                    
-                    # Create embedding
-                    embedding = create_embedding(summary)
-                    
-                    # Check if node already exists in DB
-                    existing_node = db.query(Node).filter(
-                        Node.repo_id == repo_id,
-                        Node.path == item["path"]
-                    ).first()
-                    
-                    if existing_node:
-                        # Update existing node
-                        existing_node.summary = summary
-                        existing_node.embedding = embedding
-                    else:
-                        # Create new node
-                        node_id = str(uuid.uuid4())
-                        node = Node(
-                            id=node_id,
-                            repo_id=repo_id,
-                            path=item["path"],
-                            name=os.path.basename(item["path"]),
-                            type="file",
-                            summary=summary,
-                            embedding=embedding,
-                        )
-                        db.add(node)
-                    
-                    processed += 1
-                    
-                    # Update progress (avoid division by zero)
-                    if total_files > 0:
-                        progress = int((processed / total_files) * 80)  # Files take 80% of progress
-                    else:
-                        progress = 80
-                    task.progress = progress
-                    db.commit()
+                except Exception as file_error:
+                    logger.error(f"Error processing file {item['path']}: {str(file_error)}", exc_info=True)
+                    db.rollback()
+                    # Continue with next file
+                    continue
         
         # Process folders bottom-up
         folders = [f for f in file_tree if f["type"] == "folder"]
@@ -397,6 +405,10 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
         db.commit()
         
     except Exception as e:
+        logger.error(f"Analysis failed for task {task_id}: {str(e)}", exc_info=True)
+        # Rollback any pending transaction
+        db.rollback()
+        
         # Update task status to failed
         try:
             task = db.query(Task).filter(Task.id == task_id).first()
@@ -407,10 +419,13 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
             
             # Update repository status
             if repo and repo_id:
-                repo.status = RepositoryStatus.FAILED
-                db.commit()
-        except Exception:
-            pass  # Don't fail on cleanup errors
+                repo = db.query(Repository).filter(Repository.id == repo_id).first()
+                if repo:
+                    repo.status = RepositoryStatus.FAILED
+                    db.commit()
+        except Exception as cleanup_error:
+            logger.error(f"Cleanup failed: {str(cleanup_error)}")
+            db.rollback()
     finally:
         # No cleanup - repositories are cached permanently
         pass
