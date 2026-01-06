@@ -18,8 +18,24 @@ depends_on = None
 
 def upgrade():
     # Add status_message and error_message columns to tasks table
-    op.add_column('tasks', sa.Column('status_message', sa.Text(), nullable=True))
-    op.add_column('tasks', sa.Column('error_message', sa.Text(), nullable=True))
+    # Use raw SQL to add columns only if they don't exist
+    connection = op.get_bind()
+    
+    # Check and add status_message column
+    result = connection.execute(sa.text("""
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name='tasks' AND column_name='status_message'
+    """))
+    if not result.fetchone():
+        op.add_column('tasks', sa.Column('status_message', sa.Text(), nullable=True))
+    
+    # Check and add error_message column
+    result = connection.execute(sa.text("""
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name='tasks' AND column_name='error_message'
+    """))
+    if not result.fetchone():
+        op.add_column('tasks', sa.Column('error_message', sa.Text(), nullable=True))
 
 
 def downgrade():
