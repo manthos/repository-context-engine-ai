@@ -14,15 +14,23 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import os
 import traceback
 
-# Configure logging
+# Configure logging - force stdout and disable propagation issues
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout)
-    ]
+    ],
+    force=True  # Override any existing configuration
 )
+
+# Set log levels for key modules
+logging.getLogger("backend").setLevel(logging.INFO)
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING)  # Reduce noise
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)  # Reduce SQL noise
+
 logger = logging.getLogger(__name__)
+logger.info("Logging configured successfully")
 
 # Create database tables
 logger.info("Creating database tables...")

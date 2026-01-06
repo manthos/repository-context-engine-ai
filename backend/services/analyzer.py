@@ -33,6 +33,7 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
     repo_id = None
     try:
         logger.info(f"Starting analysis for task {task_id}, repo: {repo_url}")
+        print(f"[ANALYZER] Starting analysis: {repo_url}, task: {task_id}")  # Backup logging
         
         # Create or get repository
         repo = db.query(Repository).filter(Repository.url == repo_url).first()
@@ -143,11 +144,12 @@ def start_analysis(task_id: str, repo_url: str, depth: int, db: Session, passphr
                                 asyncio.set_event_loop(loop)
                             
                             logger.info(f"Calling LLM service for {item['path']}")
-                            summary = loop.run_until_complete(
-                                llm_service.generate_summary(content, item_type="file")
-                            )
-                            logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
-                            
+                        print(f"[ANALYZER] Calling LLM for: {item['path']}")  # Backup logging
+                        summary = loop.run_until_complete(
+                            llm_service.generate_summary(content, item_type="file")
+                        )
+                        logger.info(f"LLM returned summary for {item['path']}, length: {len(summary)} chars")
+                        print(f"[ANALYZER] LLM returned summary, length: {len(summary)}")  # Backup logging
                             # Save summary to file
                             write_summary(repo_path, item["path"], "file", summary, repo_name)
                             logger.info(f"Saved summary to filesystem for {item['path']}")

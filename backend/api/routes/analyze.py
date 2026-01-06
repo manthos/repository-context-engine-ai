@@ -23,6 +23,7 @@ async def analyze_repo(
 ):
     """Start recursive analysis of a Git repository."""
     logger.info(f"=== ANALYZE REQUEST RECEIVED ===")
+    print(f"[ANALYZE] Request received for: {request.repo_url}")  # Backup logging
     logger.info(f"Repository URL: {request.repo_url}")
     logger.info(f"Depth: {request.depth}")
     logger.info(f"Passphrase provided: {'Yes' if request.passphrase else 'No'}")
