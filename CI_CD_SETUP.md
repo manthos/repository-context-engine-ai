@@ -15,16 +15,11 @@ This guide explains how to set up **automated CI/CD** that:
 - **Test Coverage**: Backend (pytest) and Frontend (vitest) tests
 - **PostgreSQL Service**: Tests run against real PostgreSQL database
 
-### ⏳ What Needs Configuration
-
-- **Render Deployment**: Needs Render Deploy Hook setup
-- **Secrets Configuration**: API keys and deployment tokens
-
 ---
 
-## Step 1: Configure Render for Auto-Deploy
+## Configured Render for Auto-Deploy
 
-### Option A: Render Auto-Deploy from GitHub (Recommended)
+### Render Auto-Deploy from GitHub (Recommended)
 
 This is the **easiest** method - Render automatically deploys when you push to `main`.
 
@@ -42,25 +37,6 @@ This is the **easiest** method - Render automatically deploys when you push to `
    - **Your GitHub Actions tests run first**, giving you confidence before merge
 
 **No additional configuration needed!** Render handles deployment automatically.
-
-### Option B: Render Deploy Hook (Advanced)
-
-Use this if you want GitHub Actions to explicitly trigger Render deployment.
-
-1. **Get Render Deploy Hook**:
-   - Go to Render Dashboard → Your Service → **Settings**
-   - Scroll to **Deploy Hook**
-   - Click **"Create Deploy Hook"**
-   - Copy the URL (looks like: `https://api.render.com/deploy/srv-xxxxx?key=yyyy`)
-
-2. **Add Deploy Hook to GitHub Secrets**:
-   - Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions**
-   - Click **"New repository secret"**
-   - Name: `RENDER_DEPLOY_HOOK_BACKEND`
-   - Value: Paste the backend deploy hook URL
-   - Repeat for frontend: `RENDER_DEPLOY_HOOK_FRONTEND`
-
-3. **Update `.github/workflows/ci.yml`** (see Step 3 below)
 
 ---
 
@@ -81,30 +57,7 @@ Add these secrets:
 
 ## Step 3: Update GitHub Actions Workflow (Optional)
 
-If using **Option B (Deploy Hook)**, update `.github/workflows/ci.yml`:
-
-```yaml
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-      - name: Deploy Backend to Render
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
-      
-      - name: Deploy Frontend to Render
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}"
-      
-      - name: Wait for deployment
-        run: |
-          echo "✅ Deployment triggered successfully"
-          echo "Check Render dashboard for deployment status"
-```
-
-If using **Option A (Auto-Deploy)**, the current workflow is fine - Render handles deployment automatically.
+By the current workflow Render handles deployment automatically.
 
 ---
 
@@ -205,31 +158,6 @@ If using **Option A (Auto-Deploy)**, the current workflow is fine - Render handl
 
 ---
 
-## Recommended Workflow
-
-**For most users, we recommend:**
-
-1. ✅ **Use Option A (Render Auto-Deploy)** - It's simpler and works automatically
-2. ✅ **Keep GitHub Actions for testing only** - Tests give you confidence before merge
-3. ✅ **Let Render handle deployment** - Automatic on every push to `main`
-
-**Workflow:**
-```bash
-# 1. Create feature branch and make changes
-git checkout -b feature/new-feature
-# ... make changes ...
-git push origin feature/new-feature
-
-# 2. Create Pull Request on GitHub
-# → GitHub Actions runs tests automatically ✅
-
-# 3. Merge PR to main
-# → GitHub Actions runs tests again ✅
-# → Render automatically deploys when tests pass 🚀
-```
-
----
-
 ## Monitoring Deployments
 
 ### GitHub Actions
@@ -309,15 +237,5 @@ pytest backend/tests/
 - Enough for most projects
 
 ---
-
-## Next Steps
-
-1. ✅ **Deploy to Render** (follow [DEPLOYMENT.md](DEPLOYMENT.md))
-2. ✅ **Verify Auto-Deploy is enabled** (should be by default)
-3. ✅ **Test the workflow**:
-   - Push to feature branch → Tests run
-   - Merge to main → Tests run + Auto-deploy
-4. ✅ **Monitor first deployment** in Render Dashboard
-5. ✅ **Verify app works** after deployment
 
 **That's it!** Your CI/CD pipeline is now fully automated. 🚀
