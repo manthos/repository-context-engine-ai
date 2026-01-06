@@ -72,13 +72,4 @@ async def analyze_repo(
     logger.info(f"Background task added successfully, returning task_id: {task_id}")
     logger.info(f"=== ANALYZE REQUEST COMPLETED ===")
     return AnalyzeResponse(task_id=task_id)
-        start_analysis, 
-        task_id, 
-        repo_url, 
-        request.depth, 
-        db,
-        request.passphrase  # Pass passphrase to record usage
-    )
-    
-    return AnalyzeResponse(task_id=task_id)
 
