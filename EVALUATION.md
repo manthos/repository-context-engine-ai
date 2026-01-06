@@ -170,7 +170,12 @@ Integration tests go beyond unit tests by testing complete workflows including d
 
 Full production deployment on Render with persistent database. Both frontend and backend are publicly accessible. DEPLOYMENT.md provides comprehensive instructions for reproducing the deployment.
 
-**Note access on free tier Render will be slow and will need to boot everything, please be patient when first accessing.**
+> ⚠️ **Important: Render Free Tier Behavior**
+> - **Cold starts**: Services spin down after 15 minutes of inactivity and take ~30 seconds to wake up
+> - **Ephemeral filesystem**: Cloned Git repositories (`backend/cache/`) are deleted on every deployment or spin-down
+> Previously analyzed repositories will be wiped out from Render's filesystem 
+this is not an R2CE issue but how free tier Render works
+> - **Please be patient** when first accessing - the service needs to boot up
 
 **Where to Look**:
 - **Backend**: https://r2ce-backend.onrender.com
@@ -179,7 +184,7 @@ Full production deployment on Render with persistent database. Both frontend and
 - **Frontend**: https://r2ce-frontend.onrender.com
   - Fully functional UI
   - Connected to production backend
-- **Database**: PostgreSQL managed service on Render
+- **Database**: PostgreSQL managed service on Render (persistent, separate from web services)
 - Deployment documentation: [DEPLOYMENT.md](DEPLOYMENT.md)
   - Step-by-step Render setup
   - Environment variable configuration
@@ -244,4 +249,11 @@ A new developer can clone the repository and have the system running locally in 
 
 ---
 
-**Evaluator Notes**: This evaluation was generated as help to the evaluator based on the project's current state. All evidence links point to actual files in the repository. The deployment URLs are live and functional at the time of evaluation. Note they will need to be rebuilt when evaluators access so significant delay before showing up is expected please be patient. This is common for free-tier Render deployments.
+**Evaluator Notes**: This evaluation was generated as help to the evaluator based on the project's current state. All evidence links point to actual files in the repository. The deployment URLs are live and functional at the time of evaluation.
+
+**Access Instructions**:
+1. **First load takes 30+ seconds** - Render free tier spins down after 15 minutes of inactivity
+2. **Git cache is empty** - Filesystem is ephemeral and wiped on every deployment/spin-down
+3. **You can analyze new repos** - Provide the passphrase to run analysis on small repositories
+But previously analyzed repos will not be visible, this is not an R2CE issue
+but a free tier Render deployment issue -this is standard behavior for Render's free tier: ephemeral web services.

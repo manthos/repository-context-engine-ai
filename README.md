@@ -54,6 +54,11 @@ R2CE is a web application that:
   - Connected to production backend
 - **Database**: PostgreSQL managed service on Render
 
+> ⚠️ **Important: Render Free Tier Limitations**
+> - Services **spin down after 15 minutes of inactivity** (30-second cold start on next access)
+> - **Filesystem is ephemeral**: Cloned Git repositories are deleted on every deployment or spin-down
+> - The frontend displays data from the filesystem, so analyzed repositories will disappear on inactivity.
+
 ## 🔮 Features
 
 -   **Automatic Git Cloning:** Connect any public or private repository.
@@ -114,7 +119,9 @@ The system consists of three core layers:
 ### DevOps & Deployment
 -   **Containerization:** Docker + Docker Compose (multi-service orchestration)
 -   **CI/CD:** GitHub Actions for automated testing
--   **Deployment:** Render / Railway (Cloud) with environment-based configuration
+-   **Deployment:** Render (Cloud) with environment-based configuration
+    -   ⚠️ **Note**: Render's free tier has ephemeral filesystem (wiped on deploy/inactivity), so any past crawled repositories likely won't show. This is only
+    a Render free tier issue not an R2CE issue.
 -   **Monitoring:** Structured logging with JSON format
 
 ## 📄 API Specification (OpenAPI)
@@ -442,6 +449,8 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 4. Run database migrations: `alembic upgrade head`
 5. Test deployed application at your URLs
 
+> ⚠️ **Render Free Tier Filesystem**: The `backend/cache/` folder with cloned Git repos is wiped on every deployment or after 15 minutes of inactivity. 
+
 **See [DEPLOYMENT.md](DEPLOYMENT.md) for complete step-by-step instructions with all commands and configuration details.**
 
 ---
@@ -453,7 +462,7 @@ Quick links to all project documentation:
 - **[END_TO_END_GUIDE.md](END_TO_END_GUIDE.md)** ⭐ - **Complete walkthrough: Setup → Run → Test → Deploy**
 - **[DEPLOYMENT_SECURITY.md](DEPLOYMENT_SECURITY.md)** 🔒 - **Security & secrets management explained**
 - **[README.md](README.md)** - Main project documentation (this file)
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Step-by-step deployment to Render/Railway
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Step-by-step deployment to Render
 - **[CI_CD_SETUP.md](CI_CD_SETUP.md)** - CI/CD pipeline configuration guide
 - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing strategy and instructions
 - **[AGENTS.md](AGENTS.md)** - AI agent development workflow and MCP usage
